@@ -3,6 +3,7 @@ module micro
 go 1.16
 
 require (
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.18
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-playground/locales v0.14.0
@@ -18,4 +19,5 @@ require (
 	go.uber.org/zap v1.21.0
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
+	moul.io/zapfilter v1.7.0
 )

@@ -11,7 +11,7 @@ import (
 	"micro/user-web/proto"
 )
 
-func InitSrvConn(){
+func InitSrvConn() {
 	consulInfo := global.ServerConfig.ConsulInfo
 	userConn, err := grpc.Dial(
 		fmt.Sprintf("consul://%s:%d/%s?wait=14s", consulInfo.Host, consulInfo.Port, global.ServerConfig.UserSrvInfo.Name),
@@ -19,14 +19,14 @@ func InitSrvConn(){
 		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
 	)
 	if err != nil {
-		zap.S().Fatal("[InitSrvConn] 连接 【用户服务失败】")
+		zap.S().Named("demo").Fatal("[InitSrvConn] 连接 【用户服务失败】")
 	}
 
 	userSrvClient := proto.NewUserClient(userConn)
 	global.UserSrvClient = userSrvClient
 }
 
-func InitSrvConn2()  {
+func InitSrvConn2() {
 	//从注册中心获取到用户服务的信息
 	cfg := api.DefaultConfig()
 	consulInfo := global.ServerConfig.ConsulInfo
@@ -44,20 +44,20 @@ func InitSrvConn2()  {
 	if err != nil {
 		panic(err)
 	}
-	for _, value := range data{
+	for _, value := range data {
 		userSrvHost = value.Address
 		userSrvPort = value.Port
 		break
 	}
-	if userSrvHost == ""{
-		zap.S().Fatal("[InitSrvConn] 连接 【用户服务失败】")
+	if userSrvHost == "" {
+		zap.S().Named("demo").Fatal("[InitSrvConn] 连接 【用户服务失败】")
 		return
 	}
 
 	//拨号连接用户grpc服务器 跨域的问题 - 后端解决 也可以前端来解决
 	userConn, err := grpc.Dial(fmt.Sprintf("%s:%d", userSrvHost, userSrvPort), grpc.WithInsecure())
 	if err != nil {
-		zap.S().Errorw("[GetUserList] 连接 【用户服务失败】",
+		zap.S().Named("demo").Errorw("[GetUserList] 连接 【用户服务失败】",
 			"msg", err.Error(),
 		)
 	}

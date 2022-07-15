@@ -7,10 +7,16 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-
-	"micro/user-web/global"
-	"micro/user-web/models"
 )
+
+var SigningKey = "9OB0DhJG#8y6rf@COojTRlJBsoEgq1DX5RB"
+
+type CustomClaims struct {
+	ID          uint
+	NickName    string
+	AuthorityId uint
+	jwt.StandardClaims
+}
 
 type JWT struct {
 	SigningKey []byte
@@ -18,7 +24,7 @@ type JWT struct {
 
 func NewJwt() *JWT {
 	return &JWT{
-		[]byte(global.ServerConfig.JWTInfo.SigningKey),
+		[]byte(SigningKey),
 	}
 }
 
@@ -30,14 +36,16 @@ var (
 )
 
 // 创建token
-func (j *JWT) CreateToken(claims models.CustomClaims) (string, error) {
+func (j *JWT) CreateToken(claims CustomClaims) (string, error) {
+	// 当使用mac运行时这里的生成token的算法必须是SigningMethodHS256 类型的
+	// 不然在下边进行秘钥签名的时候会报错 key is invalid
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(j.SigningKey)
 }
 
 // 解析token
-func (j *JWT) ParseToken(tokenString string) (*models.CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &models.CustomClaims{},
+func (j *JWT) ParseToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{},
 		func(token *jwt.Token) (i interface{}, e error) {
 			return j.SigningKey, nil
 		})
@@ -56,7 +64,7 @@ func (j *JWT) ParseToken(tokenString string) (*models.CustomClaims, error) {
 		}
 	}
 	if token != nil {
-		if claims, ok := token.Claims.(*models.CustomClaims); ok && token.Valid {
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 			return claims, nil
 		}
 		return nil, TokenInvalid
@@ -70,13 +78,13 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 	jwt.TimeFunc = func() time.Time {
 		return time.Unix(0, 0)
 	}
-	token, err := jwt.ParseWithClaims(tokenString, &models.CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return j.SigningKey, nil
 	})
 	if err != nil {
 		return "", err
 	}
-	if claims, ok := token.Claims.(*models.CustomClaims); ok && token.Valid {
+	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		jwt.TimeFunc = time.Now
 		claims.StandardClaims.ExpiresAt = time.Now().Add(1 * time.Hour).Unix()
 		return j.CreateToken(*claims)
@@ -84,6 +92,7 @@ func (j *JWT) RefreshToken(tokenString string) (string, error) {
 	return "", TokenInvalid
 }
 
+// gin框架集成JWT认证
 func JWTAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("x-token")

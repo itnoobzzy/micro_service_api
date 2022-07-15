@@ -2,18 +2,18 @@ package initialize
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-
 	"micro/user-web/middlewares"
 	"micro/user-web/router"
+	"net/http"
 )
 
 func Routers() *gin.Engine {
-	Router := gin.Default()
-	Router.GET("/health", func(c *gin.Context){
+	Router := gin.New()
+	Router.Use(gin.Recovery())
+	Router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"code":http.StatusOK,
-			"success":true,
+			"code":    http.StatusOK,
+			"success": true,
 		})
 	})
 
@@ -21,6 +21,7 @@ func Routers() *gin.Engine {
 	Router.Use(middlewares.Cors())
 
 	ApiGroup := Router.Group("/u/v1")
+	ApiGroup.Use(gin.Logger())
 	router.InitUserRouter(ApiGroup)
 	router.InitBaseRouter(ApiGroup)
 

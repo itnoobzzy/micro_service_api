@@ -3,6 +3,7 @@ package initialize
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
@@ -15,11 +16,24 @@ import (
 
 func GetEnvInfo(env string) bool {
 	viper.AutomaticEnv()
+	zap.S().Named("demo").Infof("DEBUG: &v", viper.Get(env))
 	return viper.GetBool(env)
 }
 
-func InitConfig(){
-	debug := GetEnvInfo("MXSHOP_DEBUG")
+func getConfig(cc config_client.IConfigClient) {
+	content, err := cc.GetConfig(vo.ConfigParam{
+		DataId: global.NacosConfig.DataId,
+		Group:  global.NacosConfig.Group})
+	err = json.Unmarshal([]byte(content), &global.ServerConfig)
+	if err != nil {
+		zap.S().Named("demo").Fatalf("读取nacos配置失败： %s", err.Error())
+		panic(err)
+	}
+	zap.S().Named("demo").Info(&global.ServerConfig)
+}
+
+func InitConfig() {
+	debug := GetEnvInfo("DEBUG")
 	configFilePrefix := "config"
 	configFileName := fmt.Sprintf("user-web/%s-pro.yaml", configFilePrefix)
 	if debug {
@@ -33,22 +47,26 @@ func InitConfig(){
 	if err := v.Unmarshal(global.NacosConfig); err != nil {
 		panic(err)
 	}
-	zap.S().Infof("配置信息: &v", global.NacosConfig)
+	zap.S().Named("demo").Infof("配置信息: &v", global.NacosConfig)
 	//从nacos中读取配置信息
 	sc := []constant.ServerConfig{
 		{
 			IpAddr: global.NacosConfig.Host,
-			Port: global.NacosConfig.Port,
+			Port:   global.NacosConfig.Port,
 		},
 	}
 
-	cc := constant.ClientConfig {
+	cc := constant.ClientConfig{
 		NamespaceId:         global.NacosConfig.Namespace, // 如果需要支持多namespace，我们可以场景多个client,它们有不同的NamespaceId
 		TimeoutMs:           5000,
 		NotLoadCacheAtStart: true,
 		LogDir:              "tmp/nacos/log",
 		CacheDir:            "tmp/nacos/cache",
 		LogLevel:            "debug",
+		LogRollingConfig: &constant.ClientLogRollingConfig{
+			MaxSize: 1,
+			MaxAge:  1,
+		},
 	}
 
 	configClient, err := clients.CreateConfigClient(map[string]interface{}{
@@ -59,19 +77,28 @@ func InitConfig(){
 		panic(err)
 	}
 
-	content, err := configClient.GetConfig(vo.ConfigParam{
+	//content, err := configClient.GetConfig(vo.ConfigParam{
+	//	DataId: global.NacosConfig.DataId,
+	//	Group:  global.NacosConfig.Group})
+	//
+	//if err != nil {
+	//	panic(err)
+	//}
+	getConfig(configClient)
+	err = configClient.ListenConfig(vo.ConfigParam{
 		DataId: global.NacosConfig.DataId,
-		Group:  global.NacosConfig.Group})
+		Group:  global.NacosConfig.Group,
+		OnChange: func(namespace, group, dataId, data string) {
+			getConfig(configClient)
+		},
+	})
 
-	if err != nil {
-		panic(err)
-	}
 	//fmt.Println(content) //字符串 - yaml
 	//想要将一个json字符串转换成struct，需要去设置这个struct的tag
-	err = json.Unmarshal([]byte(content), &global.ServerConfig)
-	if err != nil{
-		zap.S().Fatalf("读取nacos配置失败： %s", err.Error())
-	}
-	fmt.Println(&global.ServerConfig)
+	//err = json.Unmarshal([]byte(content), &global.ServerConfig)
+	//if err != nil {
+	//	zap.S().Fatalf("读取nacos配置失败： %s", err.Error())
+	//}
+	//zap.S().Info(&global.ServerConfig)
 
 }

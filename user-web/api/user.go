@@ -2,7 +2,7 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"micro/user-web/client"
 	"micro/user-web/middlewares"
 	"net/http"
 	"strconv"
@@ -65,6 +65,7 @@ func HandleValidatorError(c *gin.Context, err error) {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": err.Error(),
 		})
+		return
 	}
 	c.JSON(http.StatusBadRequest, gin.H{
 		"error": removeTopStruct(errs.Translate(global.Trans)),
@@ -75,7 +76,7 @@ func GetUserList(ctx *gin.Context) {
 
 	claims, _ := ctx.Get("claims")
 	currentUser := claims.(*models.CustomClaims)
-	zap.S().Infof("访问用户：%d", currentUser.ID)
+	zap.S().Named("demo").Infof("访问用户：%d", currentUser.ID)
 
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
@@ -87,7 +88,7 @@ func GetUserList(ctx *gin.Context) {
 		PSize: uint32(pSizeInt),
 	})
 	if err != nil {
-		zap.S().Errorf("[GetUserList] 查询 【用户列表】失败")
+		zap.S().Named("demo").Errorf("[GetUserList] 查询 【用户列表】失败")
 		HandleGrpcErrtoHttp(err, ctx)
 	}
 
@@ -190,10 +191,7 @@ func Register(c *gin.Context) {
 		return
 	}
 	// 验证码校验
-	rdb := redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%d", global.ServerConfig.RedisInfo.Host, global.ServerConfig.RedisInfo.Port),
-	})
-	value, err := rdb.Get(context.Background(), registerForm.Mobile).Result()
+	value, err := client.Rdb.Get(context.Background(), registerForm.Mobile).Result()
 	if err == redis.Nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": "验证码失效",
@@ -214,7 +212,7 @@ func Register(c *gin.Context) {
 		Mobile:   registerForm.Mobile,
 	})
 	if err != nil {
-		zap.S().Errorf("[Register] 查询 【新建用户失败】失败: %s", err.Error())
+		zap.S().Named("demo").Errorf("[Register] 查询 【新建用户失败】失败: %s", err.Error())
 		HandleGrpcErrtoHttp(err, c)
 		return
 	}

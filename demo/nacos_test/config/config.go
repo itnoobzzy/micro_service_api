@@ -23,29 +23,16 @@ type ConsulConfig struct {
 type RedisConfig struct {
 	Host     string `mapstructure:"host" json:"host"`
 	Port     int    `mapstructure:"port" json:"port"`
-	DB       int    `mapstructure:"db" json:"db"`
-	Expire   int    `mapstructure:"expire" json:"expire"`
 	Password string `mapstructure:"pwd" json:"pwd"`
+	Expire   int    `mapstructure:"expire" json:"expire"`
 }
 
 type ServerConfig struct {
 	Name        string        `mapstructure:"name" json:"name"`
-	Host        string        `mapstructure:"host" json:"host"`
-	Tags        []string      `mapstructure:"tags" json:"tags"`
 	Port        int           `mapstructure:"port" json:"port"`
 	UserSrvInfo UserSrvConfig `mapstructure:"user_svc" json:"user_svc"`
 	JWTInfo     JWTConfig     `mapstructure:"jwt" json:"jwt"`
 	AliSmsInfo  AliSmsConfig  `mapstructure:"sms" json:"sms"`
 	RedisInfo   RedisConfig   `mapstructure:"redis" json:"redis"`
 	ConsulInfo  ConsulConfig  `mapstructure:"consul" json:"consul"`
-}
-
-type NacosConfig struct {
-	Host      string `mapstructure:"host"`
-	Port      uint64 `mapstructure:"port"`
-	Namespace string `mapstructure:"namespace"`
-	User      string `mapstructure:"user"`
-	Password  string `mapstructure:"password"`
-	DataId    string `mapstructure:"dataid"`
-	Group     string `mapstructure:"group"`
 }
