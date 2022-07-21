@@ -170,7 +170,7 @@ func PassWordLogin(c *gin.Context) {
 				c.JSON(http.StatusOK, gin.H{
 					"id":         rsp.Id,
 					"nick_name":  rsp.NickName,
-					"token":      token,
+					"x-token":    token,
 					"expired_at": (time.Now().Unix() + 60*60*24*30) * 1000,
 				})
 			} else {
