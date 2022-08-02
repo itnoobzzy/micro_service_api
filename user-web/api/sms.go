@@ -35,7 +35,7 @@ func SendSms(ctx *gin.Context) {
 		return
 	}
 
-	//client, err := dysmsapi.NewClientWithAccessKey("cn-beijing", global.ServerConfig.AliSmsInfo.ApiKey, global.ServerConfig.AliSmsInfo.ApiSecrect)
+	//client, err := dysmsapi.NewClientWithAccessKey("cn-beijing", order_global.ServerConfig.AliSmsInfo.ApiKey, order_global.ServerConfig.AliSmsInfo.ApiSecrect)
 	//if err != nil {
 	//	panic(err)
 	//}
@@ -58,9 +58,9 @@ func SendSms(ctx *gin.Context) {
 	//}
 	//将验证码保存起来 - redis
 	//rdb := redis.NewClient(&redis.Options{
-	//	Addr:     fmt.Sprintf("%s:%d", global.ServerConfig.RedisInfo.Host, global.ServerConfig.RedisInfo.Port),
-	//	Password: global.ServerConfig.RedisInfo.Password,
-	//	DB:       global.ServerConfig.RedisInfo.DB,
+	//	Addr:     fmt.Sprintf("%s:%d", order_global.ServerConfig.RedisInfo.Host, order_global.ServerConfig.RedisInfo.Port),
+	//	Password: order_global.ServerConfig.RedisInfo.Password,
+	//	DB:       order_global.ServerConfig.RedisInfo.DB,
 	//})
 	client.Rdb.Set(context.Background(), sendSmsForm.Mobile, smsCode, time.Duration(global.ServerConfig.RedisInfo.Expire)*time.Second)
 

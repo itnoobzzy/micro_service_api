@@ -3,15 +3,14 @@ package initialize
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
+	"micro/order-web/global"
 
 	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-
-	"micro/goods-web/global"
 )
 
 func GetEnvInfo(env string) bool {
@@ -35,9 +34,9 @@ func getConfig(cc config_client.IConfigClient) {
 func InitConfig() {
 	debug := GetEnvInfo("DEBUG")
 	configFilePrefix := "config"
-	configFileName := fmt.Sprintf("goods-web/%s-pro.yaml", configFilePrefix)
+	configFileName := fmt.Sprintf("order-web/%s-pro.yaml", configFilePrefix)
 	if debug {
-		configFileName = fmt.Sprintf("goods-web/%s-debug.yaml", configFilePrefix)
+		configFileName = fmt.Sprintf("order-web/%s-debug.yaml", configFilePrefix)
 	}
 	v := viper.New()
 	v.SetConfigFile(configFileName)

@@ -40,7 +40,7 @@ func InitSrvConn2() {
 	}
 
 	data, err := client.Agent().ServicesWithFilter(fmt.Sprintf("Service == \"%s\"", global.ServerConfig.UserSrvInfo.Name))
-	//data, err := client.Agent().ServicesWithFilter(fmt.Sprintf(`Service == "%s"`, global.ServerConfig.UserSrvInfo.Name))
+	//data, err := client.Agent().ServicesWithFilter(fmt.Sprintf(`Service == "%s"`, order_global.ServerConfig.UserSrvInfo.Name))
 	if err != nil {
 		panic(err)
 	}

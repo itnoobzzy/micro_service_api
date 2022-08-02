@@ -34,7 +34,7 @@ func getConfig(cc config_client.IConfigClient) {
 
 func InitConfig() {
 	debug := GetEnvInfo("DEBUG")
-	configFilePrefix := "config"
+	configFilePrefix := "order_config"
 	configFileName := fmt.Sprintf("user-web/%s-pro.yaml", configFilePrefix)
 	if debug {
 		configFileName = fmt.Sprintf("user-web/%s-debug.yaml", configFilePrefix)
@@ -78,8 +78,8 @@ func InitConfig() {
 	}
 
 	//content, err := configClient.GetConfig(vo.ConfigParam{
-	//	DataId: global.NacosConfig.DataId,
-	//	Group:  global.NacosConfig.Group})
+	//	DataId: order_global.NacosConfig.DataId,
+	//	Group:  order_global.NacosConfig.Group})
 	//
 	//if err != nil {
 	//	panic(err)
@@ -95,10 +95,10 @@ func InitConfig() {
 
 	//fmt.Println(content) //字符串 - yaml
 	//想要将一个json字符串转换成struct，需要去设置这个struct的tag
-	//err = json.Unmarshal([]byte(content), &global.ServerConfig)
+	//err = json.Unmarshal([]byte(content), &order_global.ServerConfig)
 	//if err != nil {
 	//	zap.S().Fatalf("读取nacos配置失败： %s", err.Error())
 	//}
-	//zap.S().Info(&global.ServerConfig)
+	//zap.S().Info(&order_global.ServerConfig)
 
 }
