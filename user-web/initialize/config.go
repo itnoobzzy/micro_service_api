@@ -34,7 +34,7 @@ func getConfig(cc config_client.IConfigClient) {
 
 func InitConfig() {
 	debug := GetEnvInfo("DEBUG")
-	configFilePrefix := "order_config"
+	configFilePrefix := "config"
 	configFileName := fmt.Sprintf("user-web/%s-pro.yaml", configFilePrefix)
 	if debug {
 		configFileName = fmt.Sprintf("user-web/%s-debug.yaml", configFilePrefix)
